@@ -26,5 +26,5 @@ Repositori ini berisi proyek praktis lengkap untuk membangun chatbot AI mengguna
 🔥Content creator AI
 
 📎 Ikuti Seri Kontennya:
-🖥️ TikTok / YouTube: @agustlabs
-Berbagi kode, insight, dan progress harian
+🖥️ TikTok : @agustlabs
+Kadang ngulik AI, ngide solusi digital, dan ngobrolin tips 😁
