@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG dengan Gemini & Weaviate</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f8f9fa;
+            color: #212529;
+            display: flex;
+            justify-content: center;
+        }
+        .container {
+            max-width: 800px;
+            width: 100%;
+            margin: 2rem;
+            padding: 2rem;
+            background-color: #ffffff;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2 {
+            color: #343a40;
+            border-bottom: 2px solid #dee2e6;
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+        form {
+            margin-bottom: 2rem;
+            padding: 1.5rem;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #dee2e6;
+        }
+        input[type="file"], input[type="text"] {
+            width: calc(100% - 24px);
+            padding: 10px;
+            margin-bottom: 1rem;
+            border: 1px solid #ced4da;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #007bff;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        .flash {
+            padding: 1rem;
+            margin: 1rem 0;
+            border-radius: 4px;
+            border: 1px solid transparent;
+        }
+        .flash.success {
+            color: #0f5132;
+            background-color: #d1e7dd;
+            border-color: #badbcc;
+        }
+        .flash.error {
+            color: #842029;
+            background-color: #f8d7da;
+            border-color: #f5c2c7;
+        }
+        .results {
+            margin-top: 2rem;
+        }
+        .results h3 {
+            color: #495057;
+        }
+        .answer {
+            background-color: #e9ecef;
+            padding: 1.5rem;
+            border-radius: 8px;
+            margin-bottom: 2rem;
+            white-space: pre-wrap; /* Agar format teks dari AI terjaga */
+        }
+        .context-box {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            padding: 1rem;
+            margin-top: 1rem;
+            border-radius: 8px;
+        }
+        .context-chunk {
+            border-bottom: 1px dashed #ced4da;
+            padding-bottom: 1rem;
+            margin-bottom: 1rem;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+        .context-chunk:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+        }
+        .context-chunk strong {
+            color: #495057;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>RAG Sederhana dengan Gemini & Weaviate</h1>
+
+        <!-- Menampilkan flash messages -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            {% for category, message in messages %}
+              <div class="flash {{ category }}">{{ message }}</div>
+            {% endfor %}
+          {% endif %}
+        {% endwith %}
+
+        <!-- Bagian Unggah Dokumen -->
+        <h2>1. Unggah Dokumen Basis Pengetahuan (.txt)</h2>
+        <form action="{{ url_for('upload_file') }}" method="post" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".txt" required>
+            <button type="submit">Unggah & Indeks</button>
+        </form>
+
+        <!-- Bagian Tanya Jawab -->
+        <h2>2. Ajukan Pertanyaan</h2>
+        <form action="{{ url_for('ask_question') }}" method="post">
+            <input type="text" name="question" placeholder="Ketik pertanyaan Anda di sini..." value="{{ question or '' }}" required>
+            <button type="submit">Tanya</button>
+        </form>
+
+        <!-- Bagian Hasil Jawaban -->
+        {% if answer %}
+            <div class="results">
+                <h3>Jawaban:</h3>
+                <div class="answer">
+                    <p>{{ answer }}</p>
+                </div>
+
+                {% if context %}
+                <div class="context-box">
+                    <h4>Konteks yang Digunakan untuk Menjawab:</h4>
+                    {% for chunk in context %}
+                        <div class="context-chunk">
+                           <p><em>"{{ chunk.content }}"</em></p>
+                           <strong>Sumber: {{ chunk.source_document }}</strong>
+                        </div>
+                    {% endfor %}
+                </div>
+                {% endif %}
+            </div>
+        {% endif %}
+    </div>
+</body>
+</html>
+
